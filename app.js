@@ -233,6 +233,9 @@ app.get("/getusercart/:id", async (req, res) => {
 })
 
 
+app.get("/", async (req, res) => {
+    res.status(200).send("Welcome to Ecommerce");
+})
 
 // This should be the last route else any after it won't work
 app.use("*", (req, res) => {
