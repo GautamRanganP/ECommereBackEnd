@@ -240,9 +240,9 @@ app.get("/", async (req, res) => {
 app.post("/employee", async (req, res) => {
     const { employeeID, employeeName, employeeEmail,completionDate } = req.body;
         try {
-            const Employee = new Employee({ employeeID, employeeName, employeeEmail,completionDate});
-            await Employee.save()
-            res.status(200).send(Employee)
+            const employee = new Employee({ employeeID, employeeName, employeeEmail,completionDate});
+            await employee.save()
+            res.status(200).send(employee)
         } catch (error) {
             console.error(error);
             res.status(500).send("internal server error");
