@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const User = require("./model/user");
 const Poll = require("./model/product")
 const Cart = require("./model/cart")
+const Employee = require("./model/employee")
 const auth = require("./middleware/auth");
 const cors = require('cors');
 const bodyParser = require('body-parser')
@@ -236,7 +237,27 @@ app.get("/getusercart/:id", async (req, res) => {
 app.get("/", async (req, res) => {
     res.status(200).send("Welcome to Ecommerce");
 })
+app.post("/employee", async (req, res) => {
+    const { employeeID, employeeName, employeeEmail,completionDate } = req.body;
+        try {
+            const Employee = new Employee({ employeeID, employeeName, employeeEmail,completionDate});
+            await Employee.save()
+            res.status(200).send(Employee)
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("internal server error");
+        }
+});
 
+app.get("/getallemployee", async (req, res) => {
+    try {
+        const employee = await Employee.find({}).exec();
+        res.status(200).send(employee)
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("internal server error");
+    }
+})
 // This should be the last route else any after it won't work
 app.use("*", (req, res) => {
     res.status(404).json({
