@@ -11,10 +11,18 @@ const employeeSchema = new mongoose.Schema({
   },
   employeeEmail:{
     type:String,
+    required: true
   },
-  completionDate:{
-    type:Date,
-  },
+  certifications: [{
+    name: {
+        type: String,
+        required: true
+    },
+    completionDate:{
+        type: Date,
+        required: true
+    }
+  }]
 });
 
 module.exports = mongoose.model("employee", employeeSchema);

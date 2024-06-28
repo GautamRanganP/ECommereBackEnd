@@ -11,7 +11,7 @@ const auth = require("./middleware/auth");
 const cors = require('cors');
 const bodyParser = require('body-parser')
 const app = express();
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
 app.use(cors());
 
@@ -99,7 +99,7 @@ app.post("/login", async (req, res) => {
 
 app.get("/getuser/:id", async (req, res) => {
     try {
-        const userInfo = await Cart.find({userId:req.params.id}).exec();
+        const userInfo = await Cart.find({ userId: req.params.id }).exec();
         res.status(200).send({
             "status": "success",
             "data": userInfo
@@ -112,19 +112,19 @@ app.get("/getuser/:id", async (req, res) => {
 
 
 app.post("/createproduct", async (req, res) => {
-        const { title, price, description, image, category } = req.body;
-        try {
-            const poll = new Poll({  title, price, description, image, category });
-            await poll.save();
-            res.status(200).send({
-                "status": "Success",
-                "message": "Product Added Successfully",
-                "data": poll
-            })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send("internal server error");
-        }
+    const { title, price, description, image, category } = req.body;
+    try {
+        const poll = new Poll({ title, price, description, image, category });
+        await poll.save();
+        res.status(200).send({
+            "status": "Success",
+            "message": "Product Added Successfully",
+            "data": poll
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("internal server error");
+    }
 })
 
 app.put('/updateproduct/:id', auth, async (req, res) => {
@@ -177,14 +177,14 @@ app.get("/getproduct/:id", async (req, res) => {
 
 app.post("/addcart", async (req, res) => {
     const { userId, date, products } = req.body;
-        try {
-            const cart = new Cart({ userId, date, products });
-            await cart.save()
-            res.status(200).send(cart)
-        } catch (error) {
-            console.error(error);
-            res.status(500).send("internal server error");
-        }
+    try {
+        const cart = new Cart({ userId, date, products });
+        await cart.save()
+        res.status(200).send(cart)
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("internal server error");
+    }
 });
 
 app.put("/updatecart/:id", async (req, res) => {
@@ -195,22 +195,22 @@ app.put("/updatecart/:id", async (req, res) => {
             "status": "success",
             "message": "Cart was updated Succesfully"
         })
-        } catch (error) {
-            console.error(error);
-            res.status(500).send("internal server error");
-        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("internal server error");
+    }
 });
 
 app.delete("/deletecart/:id", async (req, res) => {
-        try {
-            await Cart.findByIdAndDelete(req.params.id).exec();
-            res.status(200).send({
-                "status": "success",
-                "message": "Poll was Deleted Succesfully"
-            })
-        } catch (error) {
-            res.status(500).send("internal server error");
-        }
+    try {
+        await Cart.findByIdAndDelete(req.params.id).exec();
+        res.status(200).send({
+            "status": "success",
+            "message": "Poll was Deleted Succesfully"
+        })
+    } catch (error) {
+        res.status(500).send("internal server error");
+    }
 });
 
 app.get("/getallcart", async (req, res) => {
@@ -238,15 +238,27 @@ app.get("/", async (req, res) => {
     res.status(200).send("Welcome to Ecommerce");
 })
 app.post("/employee", async (req, res) => {
-    const { employeeID, employeeName, employeeEmail,completionDate } = req.body;
-        try {
-            const employee = new Employee({ employeeID, employeeName, employeeEmail,completionDate});
-            await employee.save()
-            res.status(200).send(employee)
-        } catch (error) {
-            console.error(error);
-            res.status(500).send("internal server error");
+    const { employeeID, employeeName, employeeEmail, certifications } = req.body;
+    try {
+        const existingEmployee = await Employee.findOne({ employeeID });
+        const existingCertifications = await Employee.findOne({
+            certifications: { $elemMatch: { name: certifications.name, issuer: certifications.issuer } }
+        });
+        if (existingCertifications) {
+            return res.status(400).send('Certification already exists for this employee');
         }
+        if (existingEmployee) {
+            existingEmployee.certifications.push(...certifications);
+            await existingEmployee.save();
+            res.status(200).send(employee)
+        }
+        const employee = new Employee({ employeeID, employeeName, employeeEmail, certifications });
+        await employee.save()
+        res.status(200).send(employee)
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("internal server error");
+    }
 });
 
 app.get("/getallemployee", async (req, res) => {
