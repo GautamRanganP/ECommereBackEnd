@@ -241,13 +241,16 @@ app.post("/employee", async (req, res) => {
     const { employeeID, employeeName, employeeEmail, certifications } = req.body;
     try {
         const existingEmployee = await Employee.findOne({ employeeID });
-        const existingCertifications = await Employee.findOne({
-            certifications: { $elemMatch: { name: certifications.name, issuer: certifications.issuer } }
-        });
-        if (existingCertifications) {
-            return res.status(400).send('Certification already exists for this employee');
-        }
+        // const existingCertifications = await Employee.findOne({
+        //     certifications: { $elemMatch: { name: certifications.name, issuer: certifications.issuer } }
+        // });
         if (existingEmployee) {
+            const existingCertifications = existingEmployee.certifications.some(cert => {
+                return cert.name === certifications.name && cert.issuer === certifications.issuer;
+            });
+            if (existingCertifications) {
+                return res.status(400).send('Certification already exists for this employee');
+            }
             existingEmployee.certifications.push(...certifications);
             await existingEmployee.save();
             res.status(200).send(employee)
