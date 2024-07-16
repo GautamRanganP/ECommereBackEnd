@@ -244,20 +244,27 @@ app.post("/employee", async (req, res) => {
         // const existingCertifications = await Employee.findOne({
         //     certifications: { $elemMatch: { name: certifications.name, issuer: certifications.issuer } }
         // });
+        console.log("exiting employee",existingEmployee)
         if (existingEmployee) {
             const existingCertifications = existingEmployee.certifications.some(cert => {
-                return cert.name === certifications.name && cert.issuer === certifications.issuer;
+                return cert.name === certifications[0].name;
             });
+            // && cert.completionDate == certifications[0].completionDate
+            console.log("existing",existingCertifications)
             if (existingCertifications) {
                 return res.status(400).send('Certification already exists for this employee');
             }
-            existingEmployee.certifications.push(...certifications);
-            await existingEmployee.save();
+            else{
+                existingEmployee.certifications.push(...certifications);
+                await existingEmployee.save();
+                res.status(200).send("Employee updated successfully")
+            }
+        }
+        else{
+            const employee = new Employee({ employeeID, employeeName, employeeEmail, certifications });
+            await employee.save()
             res.status(200).send(employee)
         }
-        const employee = new Employee({ employeeID, employeeName, employeeEmail, certifications });
-        await employee.save()
-        res.status(200).send(employee)
     } catch (error) {
         console.error(error);
         res.status(500).send("internal server error");
