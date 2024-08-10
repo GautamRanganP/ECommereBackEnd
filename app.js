@@ -235,7 +235,7 @@ app.get("/getusercart/:id", async (req, res) => {
 
 
 app.get("/", async (req, res) => {
-    res.status(200).send("Welcome to Ecommerce");
+    res.status(200).send("Welcome to Ecommerce API");
 })
 app.post("/employee", async (req, res) => {
     const { employeeID, employeeName, employeeEmail, certifications } = req.body;
